@@ -21,35 +21,31 @@ CALL gds.graph.project.cypher(
 // B. CALCULATE BETWEENNESS CENTRALITY FOR DOWNTOWN
 // This identifies the key bottlenecks in the downtown area.
 // ===================================================================
-CALL gds.betweenness.write('downtown-san-mateo', {
-  writeProperty: 'downtown_betweenness'
-}) YIELD nodePropertiesWritten, centralityDistribution;
+CALL gds.betweenness.stream('downtown-san-mateo')
+YIELD nodeId, score
+// Stream the results and write them back to the main graph
+CALL {
+  WITH nodeId, score
+  MATCH (n) WHERE id(n) = nodeId
+  SET n.downtown_betweenness = score
+} IN TRANSACTIONS OF 5000 ROWS;
 
 
 // ===================================================================
 // C. CALCULATE COMMUNITY DETECTION FOR DOWNTOWN
 // This finds the natural "neighborhoods" or clusters in the road network.
 // ===================================================================
-CALL gds.louvain.write('downtown-san-mateo', {
-  writeProperty: 'downtown_community'
-}) YIELD nodePropertiesWritten, communityCount, communityDistribution;
+CALL gds.louvain.stream('downtown-san-mateo')
+YIELD nodeId, communityId
+// Stream the results and write them back to the main graph
+CALL {
+  WITH nodeId, communityId
+  MATCH (n) WHERE id(n) = nodeId
+  SET n.downtown_community = communityId
+} IN TRANSACTIONS OF 5000 ROWS;
 
 
 // ===================================================================
 // D. CLEANUP
 // ===================================================================
 CALL gds.graph.drop('downtown-san-mateo');
-
-
-// Step 1: Find the single intersection with the highest degree centrality score
-MATCH (n:Intersection)
-ORDER BY n.degree_centrality DESC
-LIMIT 1
-
-// Step 2: With that specific node, find all connected road segments
-WITH n
-MATCH (n)-[r:ROAD_SEGMENT]-()
-
-// Step 3: Return the unique names of those roads, filtering out any nulls
-WHERE r.name IS NOT NULL
-RETURN DISTINCT r.name AS roadName
