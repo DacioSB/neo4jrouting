@@ -4,15 +4,15 @@ import math
 from tqdm.auto import tqdm
 import pandas as pd
 
-NEO4J_URI = "bolt://3.223.129.204:7687"
+NEO4J_URI = "bolt://18.208.201.214:7687"
 NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "grasps-catchers-console"
+NEO4J_PASSWORD = "files-blood-fort"
 
 print("Connecting to Neo4j database...")
 driver = neo4j.GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 print("Connected.")
-print("Downloading street network data for San Mateo, CA...")
-G = ox.graph_from_place("San Mateo, CA, USA", network_type="drive")
+print("Downloading street network data for Campina Grande, PB...")
+G = ox.graph_from_place("Campina Grande, PB, Brazil", network_type="drive")
 print("Data downloaded.")
 print("Converting graph to GeoDataFrames...")
 gdf_nodes, gdf_relationships = ox.graph_to_gdfs(G)
