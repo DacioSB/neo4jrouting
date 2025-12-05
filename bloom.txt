@@ -1,0 +1,89 @@
+5. Visualization in Neo4j Bloom
+5.1 Basic Perspective Query
+MATCH p=(n:Intersection)-[r:ROAD_SEGMENT]-(m:Intersection)
+WHERE n.cg_betweenness IS NOT NULL 
+  AND m.cg_betweenness IS NOT NULL
+RETURN p
+LIMIT 1000;
+5.2 Top 10% Most Important Intersections
+MATCH p=(n:Intersection)-[r:ROAD_SEGMENT]-(m:Intersection)
+WHERE n.cg_betweenness >= 3555  // P90 threshold
+  AND m.cg_betweenness IS NOT NULL
+RETURN p
+LIMIT 1000;
+5.3 Top 1% Critical Infrastructure
+MATCH p=(n:Intersection)-[r:ROAD_SEGMENT]-(m:Intersection)
+WHERE n.cg_betweenness >= 112704  // P99 threshold
+  AND m.cg_betweenness IS NOT NULL
+RETURN p;
+
+
+
+
+// ===================================================================
+Extra knowledge
+
+7. Alternative Approaches
+7.1 If Full City Is Still Too Slow
+Use the downtown bounding box approach (Section 2.2)
+7.2 If You Need Exact Betweenness
+// No sampling, but ONLY for main connected component
+CALL gds.wcc.write('campina-grande-analysis', {
+  writeProperty: 'component'
+}) YIELD componentCount;
+
+// Find largest component
+MATCH (n:Intersection)
+WHERE n.component IS NOT NULL
+RETURN n.component, count(*) as size
+ORDER BY size DESC
+LIMIT 1;
+
+// Project only largest component
+CALL gds.graph.project.cypher(
+  'main-component',
+  'MATCH (n:Intersection) WHERE n.component = <LARGEST_ID> RETURN id(n) AS id',
+  'MATCH (n:Intersection)-[r:ROAD_SEGMENT]-(m:Intersection) 
+   WHERE n.component = <LARGEST_ID> AND m.component = <LARGEST_ID>
+   RETURN id(n) AS source, id(m) AS target'
+);
+
+// Now exact betweenness is feasible
+CALL gds.betweenness.write('main-component', {
+  writeProperty: 'exact_betweenness'
+});
+7.3 For Different Centrality Metrics
+cypher// Degree Centrality (simpler, faster)
+CALL gds.degree.write('campina-grande-analysis', {
+  writeProperty: 'cg_degree'
+}) YIELD nodePropertiesWritten;
+
+// PageRank (importance propagation)
+CALL gds.pageRank.write('campina-grande-analysis', {
+  writeProperty: 'cg_pagerank',
+  dampingFactor: 0.85
+}) YIELD nodePropertiesWritten;
+
+// Closeness Centrality (average distance)
+CALL gds.closeness.write('campina-grande-analysis', {
+  writeProperty: 'cg_closeness'
+}) YIELD nodePropertiesWritten;
+```
+
+---
+
+## 8. Complete Workflow Summary
+```
+1. Import Road Network (Python + OSMnx)
+   ↓
+2. Import Addresses (filtered GeoJSON)
+   ↓
+3. Link Addresses to Intersections (spatial join)
+   ↓
+4. Create Graph Projection (GDS)
+   ↓
+5. Calculate Betweenness (with sampling + filtering)
+   ↓
+6. Calculate Communities (Louvain)
+   ↓
+7. Visualize in Bloom (styled by metrics)
