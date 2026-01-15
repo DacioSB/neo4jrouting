@@ -4,7 +4,7 @@ CREATE CONSTRAINT addressHashConstraint IF NOT EXISTS FOR (a:Address) REQUIRE a.
 CREATE POINT INDEX addressLocationIndex IF NOT EXISTS FOR (a:Address) ON (a.location);
 
 // Step 2: Load addresses using MERGE on hash (handles duplicates gracefully)
-CALL apoc.load.json("https://docituneo4j.blob.core.windows.net/neojs/campina_grande_addresses.geojson") YIELD value
+CALL apoc.load.json("https://myneo.blob.core.windows.net/pixote/campina_grande_addresses.geojson") YIELD value
 WITH value
 WHERE value.geometry IS NOT NULL 
   AND value.geometry.coordinates IS NOT NULL
@@ -31,19 +31,23 @@ CALL {
 } IN TRANSACTIONS OF 10000 ROWS;
 
 // Step 3: Connect each Address to its nearest Intersection
+// Connect each Address to its nearest Intersection (optimized)
 CALL apoc.periodic.iterate(
   'MATCH (p:Address) WHERE NOT EXISTS ((p)-[:NEAREST_INTERSECTION]->(:Intersection)) RETURN p',
-  'CALL {
+  '
+    WITH p
+    CALL {
       WITH p
       MATCH (i:Intersection)
       WHERE point.distance(i.location, p.location) < 500
-      WITH i, point.distance(p.location, i.location) AS dist
+      RETURN i, point.distance(p.location, i.location) AS dist
       ORDER BY dist ASC
       LIMIT 1
-      RETURN i, dist
     }
     WITH p, i, dist
+    WHERE i IS NOT NULL
     MERGE (p)-[r:NEAREST_INTERSECTION]->(i)
     SET r.distance = dist
-  ', {batchSize: 5000, parallel: false}
+  ', 
+  {batchSize: 1000, parallel: true, retries: 3}
 ) YIELD batches, total, timeTaken, committedOperations;

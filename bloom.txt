@@ -87,3 +87,6 @@ CALL gds.closeness.write('campina-grande-analysis', {
 6. Calculate Communities (Louvain)
    ↓
 7. Visualize in Bloom (styled by metrics)
+
+
+663053808.3531628

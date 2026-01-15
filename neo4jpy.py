@@ -4,9 +4,9 @@ import math
 from tqdm.auto import tqdm
 import pandas as pd
 
-NEO4J_URI = "bolt://54.242.193.125:7687"
+NEO4J_URI = "bolt://52.90.239.8:7687"
 NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "partition-weeks-assembly"
+NEO4J_PASSWORD = "salts-drives-originals"
 
 print("Connecting to Neo4j database...")
 driver = neo4j.GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
