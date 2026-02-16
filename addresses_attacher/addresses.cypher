@@ -4,7 +4,7 @@ CREATE CONSTRAINT addressHashConstraint IF NOT EXISTS FOR (a:Address) REQUIRE a.
 CREATE POINT INDEX addressLocationIndex IF NOT EXISTS FOR (a:Address) ON (a.location);
 
 // Step 2: Load addresses using MERGE on hash (handles duplicates gracefully)
-CALL apoc.load.json("https://myneo.blob.core.windows.net/pixote/campina_grande_addresses.geojson") YIELD value
+CALL apoc.load.json("https://miltonnasc.blob.core.windows.net/estrada/campina_grande_addresses.geojson") YIELD value
 WITH value
 WHERE value.geometry IS NOT NULL 
   AND value.geometry.coordinates IS NOT NULL
