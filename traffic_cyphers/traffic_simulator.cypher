@@ -73,7 +73,7 @@ CALL gds.graph.project(
   {
     ROAD_SEGMENT: {
       orientation: 'UNDIRECTED',
-      properties: ['current_travel_time', 'length']
+      properties: ['current_travel_time', 'length', 'eco_cost']
     }
   }
 ) YIELD graphName, nodeCount, relationshipCount;

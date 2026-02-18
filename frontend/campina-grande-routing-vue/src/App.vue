@@ -107,7 +107,7 @@ const calculateRoute = async () => {
       if (routeCoords && routeCoords.length > 0) {
         route.value = routeCoords;
         const bound = L.latLngBounds(routeCoords);
-        map.value.leafletObject.fitBounds(bounds, { padding: [50, 50] });
+        map.value.leafletObject.fitBounds(bound, { padding: [50, 50] });
       }
     }
   } catch (error) {
