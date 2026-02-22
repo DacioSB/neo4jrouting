@@ -1,4 +1,4 @@
-# Campina Grande Routing Web App
+# Neo4j Routing Web App
 
 This project is a high-performance routing web application centered on Campina Grande, Brazil, built using the **Neo4j** graph database, **OpenStreetMap (OSM)** data, and **Leaflet.js** for interactive map rendering. It implements advanced graph algorithms to solve the weighted shortest path problem on a simplified road network.
 
