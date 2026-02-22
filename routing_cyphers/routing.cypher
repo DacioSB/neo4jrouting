@@ -1,4 +1,3 @@
-// Find the "greenest" path and format for web consumption
 MATCH (start_addr:Address)-[:NEAREST_INTERSECTION]->(start:Intersection)
 WHERE toUpper(start_addr.full_address) CONTAINS 'JOAO SUASSUNA'
 WITH start, start_addr LIMIT 1
@@ -7,7 +6,6 @@ MATCH (end_addr:Address)-[:NEAREST_INTERSECTION]->(end:Intersection)
 WHERE toUpper(end_addr.full_address) CONTAINS 'AVENIDA FLORIANO PEIXOTO, 2870'
 WITH start, end, start_addr, end_addr LIMIT 1
 
-// Create a temporary GDS graph of the ENTIRE city
 CALL gds.graph.project.cypher(
   'eco-routing-full-cg',
   'MATCH (n:Intersection) RETURN id(n) AS id',
@@ -16,7 +14,6 @@ CALL gds.graph.project.cypher(
    RETURN id(n) AS source, id(m) AS target, r.eco_cost as weight'
 ) YIELD graphName
 
-// Call Dijkstra and yield the nodeIds
 CALL gds.shortestPath.dijkstra.stream(graphName, {
     sourceNode: start,
     targetNode: end,
@@ -24,7 +21,6 @@ CALL gds.shortestPath.dijkstra.stream(graphName, {
 })
 YIELD nodeIds, totalCost
 
-// Clean up
 CALL {
   WITH graphName
   CALL gds.graph.drop(graphName) YIELD graphName AS droppedGraph

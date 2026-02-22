@@ -1,4 +1,3 @@
-# filter_addresses.py
 import json
 import sys
 from tqdm import tqdm

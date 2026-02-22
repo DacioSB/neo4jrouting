@@ -1,10 +1,8 @@
-// Step 1: Drop old constraint and create new one on hash
 DROP CONSTRAINT addressIdConstraint IF EXISTS;
 CREATE CONSTRAINT addressHashConstraint IF NOT EXISTS FOR (a:Address) REQUIRE a.hash IS UNIQUE;
 CREATE POINT INDEX addressLocationIndex IF NOT EXISTS FOR (a:Address) ON (a.location);
 
-// Step 2: Load addresses using MERGE on hash (handles duplicates gracefully)
-CALL apoc.load.json("https://miltonnasc.blob.core.windows.net/estrada/campina_grande_addresses.geojson") YIELD value
+CALL apoc.load.json("https://marcelocaralho.blob.core.windows.net/ping/campina_grande_addresses.geojson") YIELD value
 WITH value
 WHERE value.geometry IS NOT NULL 
   AND value.geometry.coordinates IS NOT NULL
@@ -30,8 +28,6 @@ CALL {
         a.region = value.properties.region
 } IN TRANSACTIONS OF 10000 ROWS;
 
-// Step 3: Connect each Address to its nearest Intersection
-// Connect each Address to its nearest Intersection (optimized)
 CALL apoc.periodic.iterate(
   'MATCH (p:Address) WHERE NOT EXISTS ((p)-[:NEAREST_INTERSECTION]->(:Intersection)) RETURN p',
   '
