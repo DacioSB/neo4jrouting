@@ -1,8 +1,8 @@
 import neo4j, { Driver } from 'neo4j-driver';
 
-const URI = "bolt://100.53.46.182:7687";
+const URI = "bolt://54.86.50.216:7687";
 const USER = "neo4j";
-const PASSWORD = "descriptions-propose-overlays";
+const PASSWORD = "forms-compositions-seat";
 
 let driver : Driver | null = null;
 try {

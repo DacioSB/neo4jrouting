@@ -1,4 +1,3 @@
-# add_elevation_data_resumable.py
 import neo4j
 import requests
 import json
@@ -6,9 +5,9 @@ import time
 from tqdm import tqdm
 
 # --- CONFIGURE YOUR NEO4J CONNECTION ---
-NEO4J_URI = "bolt://100.53.46.182:7687"
+NEO4J_URI = "bolt://54.86.50.216:7687"
 NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "descriptions-propose-overlays"
+NEO4J_PASSWORD = "forms-compositions-seat"
 # -----------------------------------------
 
 driver = neo4j.GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
@@ -106,7 +105,6 @@ if __name__ == "__main__":
                 
                 pbar.update(nodes_updated)
                 
-                # A much more polite delay to avoid rate limits
                 time.sleep(10) 
     
     print("✓ Elevation enrichment script finished.")
